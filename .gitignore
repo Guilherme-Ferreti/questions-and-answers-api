@@ -1,0 +1,9 @@
+vendor/
+
+node_modules/
+
+.vscode/
+
+config/settings.php
+
+.phpunit.result.cache
