@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Database\Database;
-
 abstract class BaseModel 
 {
     protected array $attributes = [];
