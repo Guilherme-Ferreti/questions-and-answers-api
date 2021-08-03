@@ -1,33 +1,13 @@
 <?php
 
-use App\Http\Controllers\HomeController;
+use App\Http\Controllers\QuestionsController;
 use App\Http\Middlewares\CorsMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 
 $app->group('/api', function (RouteCollectorProxy $route) {
-    $route->get('/home', new HomeController());
+    $route->group('/questions', function (RouteCollectorProxy $route) {
+        $route->get('/{id}', [QuestionsController::class, 'show']);
 
-    $route->group('/fruits', function (RouteCollectorProxy $route) {
-        $route->get('[/]', function ($request, $response) {
-            $response->getBody()->write('Many fruits');
-            return $response;
-        });
-
-        $route->get('/apples', function ($request, $response) {
-            $response->getBody()->write('Apples');
-            return $response;
-        });
-
-        $route->get('/bananas', function ($request, $response) {
-            $response->getBody()->write('Bananas');
-            return $response;
-        });
-
-        $route->group('/others', function (RouteCollectorProxy $route) {
-            $route->get('/oranges', function ($request, $response) {
-                $response->getBody()->write('Oranges');
-                return $response;
-            });
-        });
+        $route->post('[/]', [QuestionsController::class, 'store']);
     });
 })->add(new CorsMiddleware());
