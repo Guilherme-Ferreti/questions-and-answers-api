@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Validations;
+namespace App\Validations\Auth;
 
-class StoreUserValidator extends BaseValidator
+use App\Validations\BaseValidator;
+
+class RegisterUserValidator extends BaseValidator
 {
     public function rules(): array
     {

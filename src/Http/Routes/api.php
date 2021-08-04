@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QuestionsController;
-use App\Http\Controllers\UsersController;
 use App\Http\Middlewares\CorsMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -15,11 +14,8 @@ $app->group('/api', function (RouteCollectorProxy $route) {
         $route->delete('/{id}', [QuestionsController::class, 'destroy']);
     });
 
-    $route->group('/users', function (RouteCollectorProxy $route) {
-        $route->post('[/]', [UsersController::class, 'store']);
-    });
-
     $route->group('/auth', function (RouteCollectorProxy $route) {
+        $route->post('/register', [AuthController::class, 'register']);
         $route->post('/login', [AuthController::class, 'login']);
     });
 })->add(new CorsMiddleware());
