@@ -27,7 +27,7 @@ class Question extends BaseModel
 
         $question->save();
 
-        return $question;
+        return $question->refresh();
     }
 
     public function save(): bool

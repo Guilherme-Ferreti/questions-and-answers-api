@@ -37,14 +37,14 @@ class QuestionsController extends BaseController
 
         if ($validator->fails()) {
             return $this->json($response, [
-                'errors' => $validator->errors()->firstOfAll(),
+                'errors' => $validator->errors()->toArray(),
             ], 400);
         }
 
         $question = Question::create($validator->getValidData());
 
         return $this->json($response, [
-            'question' => $question->refresh()->toArray(),
+            'question' => $question->toArray(),
         ], 201);
     }
 
@@ -58,7 +58,7 @@ class QuestionsController extends BaseController
 
         if ($validator->fails()) {
             return $this->json($response, [
-                'errors' => $validator->errors()->firstOfAll(),
+                'errors' => $validator->errors()->toArray(),
             ], 400);
         }
 
