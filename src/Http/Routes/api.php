@@ -17,5 +17,6 @@ $app->group('/api', function (RouteCollectorProxy $route) {
     $route->group('/auth', function (RouteCollectorProxy $route) {
         $route->post('/register', [AuthController::class, 'register']);
         $route->post('/login', [AuthController::class, 'login']);
+        $route->post('/refresh-token', [AuthController::class, 'refresh_token']);
     });
 })->add(new CorsMiddleware());

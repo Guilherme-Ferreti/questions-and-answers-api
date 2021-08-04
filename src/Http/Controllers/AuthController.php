@@ -40,14 +40,31 @@ class AuthController extends BaseController
             ], 401);
         }
 
-        $auth_token = AuthService::createAuthToken($user->id);
+        $tokens = AuthService::generateAccessTokens($user);
 
-        $refresh_token = AuthService::updateRefreshToken($user);
+        return $this->json($response, $tokens);
+    }
 
-        return $this->json($response, [
-            'token' => $auth_token['value'],
-            'expires_at' => $auth_token['expires_at'],
-            'refresh_token' => $refresh_token,
-        ]);
+    public function refresh_token(Request $request, Response $response)
+    {
+        $refresh_token = $_COOKIE['refresh_token'] ?? null;
+
+        if (! $refresh_token) {
+            return $this->json($response, [
+                'error' => 'Invalid Refresh Token',
+            ]);
+        }
+
+        $user = User::findByRefreshToken($refresh_token);
+
+        if (! $user) {
+            return $this->json($response, [
+                'error' => 'Invalid Refresh Token - No user',
+            ]);
+        }
+
+        $tokens = AuthService::generateAccessTokens($user);
+
+        return $this->json($response, $tokens);
     }
 }

@@ -26,27 +26,29 @@ class AuthService
         return $user;
     }
 
-    public static function createAuthToken(int $user_id): array
-    {
-        $expires_at = time() + 10;
-
-        $payload = [
-            'user_id' => $user_id,
-            'expires_at' => $expires_at,
-        ];
-
-        return [
-            'value' => encrypt(json_encode($payload)),
-            'expires_at' => $expires_at,
-        ];
-    }
-
-    public static function updateRefreshToken(User $user): string
+    public static function generateAccessTokens(User $user): array
     {
         $user->refresh_token = md5(uniqid(rand(), true));
 
         $user->update();
 
-        return $user->refresh_token;
+        setcookie(
+            name: 'refresh_token', 
+            value: $user->refresh_token,
+            httponly: true
+        );
+
+        $expires_at = time() + 10;
+
+        $auth_token = encrypt(json_encode([
+            'user_id' => $user->id,
+            'expires_at' => $expires_at,
+        ]));
+
+        return [
+            'auth_token' => $auth_token,
+            'expires_at' => $expires_at,
+            'refresh_token' => $user->refresh_token,
+        ];
     }
 }

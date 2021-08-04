@@ -26,6 +26,19 @@ class User extends BaseModel
         return new User($results[0]);
     }
 
+    public static function findByRefreshToken(string $refresh_token): User|false
+    {
+        $results = db()->select('SELECT * FROM users WHERE refresh_token = :refresh_token LIMIT 1', 
+            [':refresh_token' => $refresh_token]
+        );
+
+        if (empty($results)) {
+            return false;
+        }
+
+        return new User($results[0]);
+    }
+
     public static function create(array $attributes = [])
     {
         $user = new User($attributes);
