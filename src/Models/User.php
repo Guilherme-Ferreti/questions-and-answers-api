@@ -4,7 +4,7 @@ namespace App\Models;
 
 class User extends BaseModel
 {
-    public function findById($id)
+    public function findById($id): User|false
     {
         $results = db()->select('SELECT * FROM users WHERE id = :id', [':id' => $id]);
 
@@ -14,6 +14,18 @@ class User extends BaseModel
 
         return new User($results[0]);
     }
+
+    public static function findByEmail(string $email): User|false
+    {
+        $results = db()->select('SELECT * FROM users WHERE email = :email', [':email' => $email]);
+
+        if (empty($results)) {
+            return false;
+        }
+
+        return new User($results[0]);
+    }
+
     public static function create(array $attributes = [])
     {
         $user = new User($attributes);
@@ -39,6 +51,28 @@ class User extends BaseModel
         }
 
         return $result;
+    }
+
+    public function update(): bool
+    {
+        return db()->query('
+            UPDATE users 
+            SET 
+                username = :username,
+                email = :email,
+                refresh_token = :refresh_token,
+                updated = :updated
+            WHERE
+                id = :id
+            ', 
+            [
+                ':username' => $this->username,
+                ':email' => $this->email,
+                ':refresh_token' => $this->refresh_token,
+                ':updated' => now(),
+                ':id' => $this->id,
+            ]
+        );
     }
 
     public function refresh()

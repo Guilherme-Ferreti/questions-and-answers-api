@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QuestionsController;
 use App\Http\Controllers\UsersController;
 use App\Http\Middlewares\CorsMiddleware;
@@ -16,5 +17,9 @@ $app->group('/api', function (RouteCollectorProxy $route) {
 
     $route->group('/users', function (RouteCollectorProxy $route) {
         $route->post('[/]', [UsersController::class, 'store']);
+    });
+
+    $route->group('/auth', function (RouteCollectorProxy $route) {
+        $route->post('/login', [AuthController::class, 'login']);
     });
 })->add(new CorsMiddleware());
