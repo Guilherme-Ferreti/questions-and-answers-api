@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\AuthService;
+use App\Validations\LoginValidator;
 use App\Http\Resources\UserResource;
 use App\Validations\Auth\RegisterUserValidator;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -11,28 +12,22 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class AuthController extends BaseController
 {
-    public function register(Request $request, Response $response)
+    public function register(Request $request, Response $response, RegisterUserValidator $v)
     {
-        $validator = new RegisterUserValidator((array) $request->getParsedBody());
+        $attributes = $v->validate((array) $request->getParsedBody());
 
-        if ($validator->fails()) {
-            return $this->json($response, [
-                'errors' => $validator->errors()->toArray(),
-            ], 400);
-        }
-
-        $user = User::create($validator->getValidData());
+        $user = User::create($attributes);
 
         return $this->json($response, [
             'user' => UserResource::toArray($user),
         ], 201);
     }
     
-    public function login(Request $request, Response $response)
+    public function login(Request $request, Response $response, LoginValidator $v)
     {
-        $parsedBody = (array) $request->getParsedBody();
+        $credentials = $v->validate((array) $request->getParsedBody());
 
-        $user = AuthService::login($parsedBody['email'] ?? '', $parsedBody['password'] ?? '');
+        $user = AuthService::login($credentials['email'], $credentials['password']);
 
         if (! $user) {
             return $this->json($response, [

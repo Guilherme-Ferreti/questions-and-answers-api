@@ -4,7 +4,7 @@ namespace App\Models;
 
 class User extends BaseModel
 {
-    public function findById($id): User|false
+    public static function findById($id): User|false
     {
         $results = db()->select('SELECT * FROM users WHERE id = :id', [':id' => $id]);
 

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
+use Slim\Exception\HttpNotFoundException;
 use App\Validations\StoreQuestionsValidator;
 use App\Validations\UpdateQuestionsValidator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Slim\Exception\HttpNotFoundException;
 
 class QuestionsController extends BaseController
 {
@@ -31,38 +31,26 @@ class QuestionsController extends BaseController
         ]);
     }
 
-    public function store(Request $request, Response $response)
+    public function store(Request $request, Response $response, StoreQuestionsValidator $v)
     {
-        $validator = new StoreQuestionsValidator((array) $request->getParsedBody());
+        $attributes = $v->validate((array) $request->getParsedBody());
 
-        if ($validator->fails()) {
-            return $this->json($response, [
-                'errors' => $validator->errors()->toArray(),
-            ], 400);
-        }
-
-        $question = Question::create($validator->getValidData());
+        $question = Question::create($attributes);
 
         return $this->json($response, [
             'question' => $question->toArray(),
         ], 201);
     }
 
-    public function update(Request $request, Response $response, $id)
+    public function update(Request $request, Response $response, $id, UpdateQuestionsValidator $v)
     {
         if (! $question = Question::findById($id)) {
             throw new HttpNotFoundException($request);
         }
 
-        $validator = new UpdateQuestionsValidator((array) $request->getParsedBody());
+        $attributes = $v->validate((array) $request->getParsedBody());
 
-        if ($validator->fails()) {
-            return $this->json($response, [
-                'errors' => $validator->errors()->toArray(),
-            ], 400);
-        }
-
-        $question->setAttributes($validator->getValidData())->update();
+        $question->setAttributes($attributes)->update();
 
         return $this->json($response, [
             'question' => $question->toArray(),

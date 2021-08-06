@@ -3,23 +3,14 @@
 namespace App\Services;
 
 use App\Models\User;
-use App\Validations\LoginValidator;
 
 class AuthService
 {
     public static function login(string $email, string $password): User|false
     {
-        $validator = new LoginValidator(compact('email', 'password'));
+        $user = User::findByEmail($email);
 
-        if ($validator->fails()) {
-            return false;
-        }
-
-        $validated = $validator->getValidData();
-
-        $user = User::findByEmail($validated['email']);
-
-        if (! $user || ! password_verify($validated['password'], $user->password)) {
+        if (! $user || ! password_verify($password, $user->password)) {
             return false;
         }
 
