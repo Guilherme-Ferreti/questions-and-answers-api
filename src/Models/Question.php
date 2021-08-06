@@ -10,6 +10,7 @@ class Question extends BaseModel
 
         return array_map(fn($row) => new Question($row), $results);
     }
+    
     public static function findById($id)
     {
         $result = db()->select('SELECT * FROM questions WHERE id = :id LIMIT 1', [':id' => $id]);
@@ -18,7 +19,11 @@ class Question extends BaseModel
             return false;
         }
 
-        return new Question($result[0]);
+        $question = new Question($result[0]);
+
+        $question->loadUser();
+
+        return $question;
     }
 
     public static function create(array $attributes)
@@ -32,7 +37,8 @@ class Question extends BaseModel
 
     public function save(): bool
     {
-        $result = db()->query('INSERT INTO questions(body, user_id) VALUES (:body, :user_id)', [
+        $result = db()->query('INSERT INTO questions(title, body, user_id) VALUES (:title, :body, :user_id)', [
+            'title' => $this->title,
             'body' => $this->body,
             'user_id' => $this->user_id,
         ]);
@@ -49,6 +55,7 @@ class Question extends BaseModel
         return db()->query('
             UPDATE questions 
             SET 
+                title = :title,
                 body = :body,
                 user_id = :user_id,
                 updated = :updated
@@ -56,6 +63,7 @@ class Question extends BaseModel
                 id = :id 
             ', 
             [
+                'title' => $this->title,
                 ':body' => $this->body,  
                 ':user_id' => $this->user_id,  
                 ':updated' => now(),  
@@ -72,5 +80,10 @@ class Question extends BaseModel
     public function refresh(): self
     {
         return $this->findById($this->id);
+    }
+
+    public function loadUser()
+    {
+        $this->attributes['user'] = User::findById($this->attributes['user_id']);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Question;
+use App\Http\Resources\QuestionResource;
 use Slim\Exception\HttpNotFoundException;
 use App\Validations\StoreQuestionsValidator;
 use App\Validations\UpdateQuestionsValidator;
@@ -23,7 +24,7 @@ class QuestionsController extends BaseController
             throw new HttpNotFoundException($request);
         }
 
-        return $this->json($question->toArray());
+        return $this->json(QuestionResource::toArray($question));
     }
 
     public function store(Request $request, StoreQuestionsValidator $v)
@@ -32,7 +33,7 @@ class QuestionsController extends BaseController
 
         $question = Question::create($attributes);
 
-        return $this->json($question->toArray(), 201);
+        return $this->json(QuestionResource::toArray($question), 201);
     }
 
     public function update(Request $request, $id, UpdateQuestionsValidator $v)
@@ -45,7 +46,7 @@ class QuestionsController extends BaseController
 
         $question->setAttributes($attributes)->update();
 
-        return $this->json($question->toArray());
+        return $this->json(QuestionResource::toArray($question));
     }
 
     public function destroy(Request $request, $id)
