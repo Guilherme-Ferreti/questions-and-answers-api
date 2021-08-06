@@ -6,43 +6,36 @@ use App\Models\Question;
 use Slim\Exception\HttpNotFoundException;
 use App\Validations\StoreQuestionsValidator;
 use App\Validations\UpdateQuestionsValidator;
-use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class QuestionsController extends BaseController
 {
-    public function index(Response $response)
+    public function index()
     {
         $questions = Question::all();
 
-        return $this->json($response, [
-            'questions' => array_map(fn($question) => $question->toArray(), $questions),
-        ]);
+        return $this->json(array_map(fn($question) => $question->toArray(), $questions));
     }
 
-    public function show(Request $request, Response $response, $id)
+    public function show(Request $request, $id)
     {
         if (! $question = Question::findById($id)) {
             throw new HttpNotFoundException($request);
         }
 
-        return $this->json($response, [
-            'question' => $question->toArray(),
-        ]);
+        return $this->json($question->toArray());
     }
 
-    public function store(Request $request, Response $response, StoreQuestionsValidator $v)
+    public function store(Request $request, StoreQuestionsValidator $v)
     {
         $attributes = $v->validate((array) $request->getParsedBody());
 
         $question = Question::create($attributes);
 
-        return $this->json($response, [
-            'question' => $question->toArray(),
-        ], 201);
+        return $this->json($question->toArray(), 201);
     }
 
-    public function update(Request $request, Response $response, $id, UpdateQuestionsValidator $v)
+    public function update(Request $request, $id, UpdateQuestionsValidator $v)
     {
         if (! $question = Question::findById($id)) {
             throw new HttpNotFoundException($request);
@@ -52,12 +45,10 @@ class QuestionsController extends BaseController
 
         $question->setAttributes($attributes)->update();
 
-        return $this->json($response, [
-            'question' => $question->toArray(),
-        ]);
+        return $this->json($question->toArray());
     }
 
-    public function destroy(Request $request, Response $response, $id)
+    public function destroy(Request $request, $id)
     {
         if (! $question = Question::findById($id)) {
             throw new HttpNotFoundException($request);
@@ -65,6 +56,6 @@ class QuestionsController extends BaseController
 
         $question->delete();
 
-        return $this->json($response, [], 204);
+        return $this->json([], 204);
     }
 }
