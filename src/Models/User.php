@@ -4,6 +4,12 @@ namespace App\Models;
 
 class User extends BaseModel
 {
+    public static function allByIds(array $ids) {
+        $results = db()->select('SELECT * FROM users WHERE id IN (' . implode(',', $ids) . ')');
+
+        return array_map(fn ($row) => new User($row), $results);
+    }
+
     public static function findById($id): User|false
     {
         $results = db()->select('SELECT * FROM users WHERE id = :id', [':id' => $id]);

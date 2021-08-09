@@ -8,7 +8,7 @@ class Question extends BaseModel
     {
         $results = db()->select('SELECT * FROM questions');
 
-        return array_map(fn($row) => new Question($row), $results);
+        return array_map(fn ($row) => new Question($row), $results);
     }
     
     public static function findById($id)
@@ -20,8 +20,6 @@ class Question extends BaseModel
         }
 
         $question = new Question($result[0]);
-
-        $question->loadUser();
 
         return $question;
     }
@@ -82,8 +80,57 @@ class Question extends BaseModel
         return $this->findById($this->id);
     }
 
-    public function loadUser()
+    public static function loadUser(Question|array $questions)
     {
-        $this->attributes['user'] = User::findById($this->attributes['user_id']);
+        if (! is_array($questions)) {
+            $questions = [$questions];
+        }
+
+        $ids = array_map(fn ($question) => $question->id, $questions);
+
+        $users = User::AllByIds($ids);
+
+        foreach ($questions as $question) {
+            foreach ($users as $user) {
+                if ($user->id == $question->user_id) {
+                    $question->user = $user;
+
+                    break;
+                }
+            }
+        }
+    }
+
+    public static function loadTopics(Question|array $questions): void
+    {
+        if (! is_array($questions)) {
+            $questions = [$questions];
+        }
+
+        $ids = array_map(fn ($question) => $question->id, $questions);
+
+        $topics = db()->select('
+            SELECT 
+                topics.*,
+                topic_question.question_id AS question_id
+            FROM
+                topics
+                    INNER JOIN
+                topic_question ON topics.id = topic_question.topic_id
+            WHERE 
+                topic_question.question_id IN (' . implode(', ', $ids) . ')
+        ');
+
+        foreach ($questions as $question) {
+            foreach ($topics as $topic) {
+                if ($topic['question_id'] == $question->id) {
+                    $current_topics = $question->topics;
+
+                    $current_topics[] = new Topic($topic);
+
+                    $question->topics = $current_topics;
+                }
+            }
+        }
     }
 }

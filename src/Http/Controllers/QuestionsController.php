@@ -15,7 +15,10 @@ class QuestionsController extends BaseController
     {
         $questions = Question::all();
 
-        return $this->json(array_map(fn($question) => $question->toArray(), $questions));
+        Question::loadTopics($questions);
+        Question::loadUser($questions);
+
+        return $this->json(QuestionResource::manyToArray($questions));
     }
 
     public function show(Request $request, $id)
