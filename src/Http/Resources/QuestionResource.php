@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Collections\QuestionCollection;
 use App\Models\Question;
 
 class QuestionResource
@@ -22,13 +23,20 @@ class QuestionResource
         }
 
         if ($question->topics) {
-            $attributes['topics'] = array_map(fn ($topic) => $topic->toArray(), $question->topics);
+            $attributes['topics'] = TopicResource::collection($question->topics);
         }
 
         return $attributes;
     }
 
-    public static function manyToArray($questions) {
-        return array_map(fn ($question) => Self::toArray($question), $questions);
+    public static function collection(QuestionCollection $questions) 
+    {
+        $array = [];
+
+        foreach ($questions as $question) {
+            $array[] = self::toArray($question);
+        }
+
+        return $array;
     } 
 }

@@ -13,12 +13,9 @@ class QuestionsController extends BaseController
 {
     public function index()
     {
-        $questions = Question::all();
+        $questions = Question::all()->load('topics', 'user');
 
-        Question::loadTopics($questions);
-        Question::loadUser($questions);
-
-        return $this->json(QuestionResource::manyToArray($questions));
+        return $this->json(QuestionResource::collection($questions));
     }
 
     public function show(Request $request, $id)
@@ -26,6 +23,8 @@ class QuestionsController extends BaseController
         if (! $question = Question::findById($id)) {
             throw new HttpNotFoundException($request);
         }
+
+        $question->load('topics', 'user');
 
         return $this->json(QuestionResource::toArray($question));
     }

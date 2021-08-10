@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Collections\UserCollection;
+
 class User extends BaseModel
 {
-    public static function allByIds(array $ids) {
+    public static function allWhereIdIn(array $ids): UserCollection
+    {
         $results = db()->select('SELECT * FROM users WHERE id IN (' . implode(',', $ids) . ')');
 
-        return array_map(fn ($row) => new User($row), $results);
+        return new UserCollection(array_map(fn ($row) => new User($row), $results));
     }
 
     public static function findById($id): User|false

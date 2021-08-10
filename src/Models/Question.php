@@ -2,26 +2,25 @@
 
 namespace App\Models;
 
+use App\Collections\TopicCollection;
+use App\Collections\QuestionCollection;
+
 class Question extends BaseModel
 {
-    public static function all()
+    public static function all(): QuestionCollection
     {
         $results = db()->select('SELECT * FROM questions');
 
-        return array_map(fn ($row) => new Question($row), $results);
+        return new QuestionCollection(array_map(fn ($row) => new Question($row), $results));
     }
     
     public static function findById($id)
     {
         $result = db()->select('SELECT * FROM questions WHERE id = :id LIMIT 1', [':id' => $id]);
 
-        if (empty($result)) {
-            return false;
-        }
-
-        $question = new Question($result[0]);
-
-        return $question;
+        return empty($result) 
+                ? false
+                : new Question($result[0]);
     }
 
     public static function create(array $attributes)
@@ -80,36 +79,23 @@ class Question extends BaseModel
         return $this->findById($this->id);
     }
 
-    public static function loadUser(Question|array $questions)
+    public function loadUser(): self
     {
-        if (! is_array($questions)) {
-            $questions = [$questions];
-        }
+        $this->user = User::findById($this->user_id);
 
-        $ids = array_map(fn ($question) => $question->id, $questions);
-
-        $users = User::AllByIds($ids);
-
-        foreach ($questions as $question) {
-            foreach ($users as $user) {
-                if ($user->id == $question->user_id) {
-                    $question->user = $user;
-
-                    break;
-                }
-            }
-        }
+        return $this;
     }
 
-    public static function loadTopics(Question|array $questions): void
+    public function loadTopics(): self
     {
-        if (! is_array($questions)) {
-            $questions = [$questions];
-        }
+        $this->topics = $this->getTopicsFromQuestionIds($this->id);
 
-        $ids = array_map(fn ($question) => $question->id, $questions);
+        return $this;
+    }
 
-        $topics = db()->select('
+    public static function getTopicsFromQuestionIds(int|array $ids): TopicCollection
+    {
+        $results = db()->select('
             SELECT 
                 topics.*,
                 topic_question.question_id AS question_id
@@ -118,19 +104,9 @@ class Question extends BaseModel
                     INNER JOIN
                 topic_question ON topics.id = topic_question.topic_id
             WHERE 
-                topic_question.question_id IN (' . implode(', ', $ids) . ')
+                topic_question.question_id IN (' . implode(', ', (array) $ids) . ')
         ');
 
-        foreach ($questions as $question) {
-            foreach ($topics as $topic) {
-                if ($topic['question_id'] == $question->id) {
-                    $current_topics = $question->topics;
-
-                    $current_topics[] = new Topic($topic);
-
-                    $question->topics = $current_topics;
-                }
-            }
-        }
+        return new TopicCollection(array_map(fn ($row) => new Topic($row), $results));
     }
 }
