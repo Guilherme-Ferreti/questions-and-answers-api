@@ -3,6 +3,7 @@
 use Monolog\Logger;
 use App\Database\Sql;
 use App\Helpers\Session;
+use App\Services\AuthService;
 use Monolog\Handler\StreamHandler;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -344,4 +345,9 @@ function is_http_status_code(int $code): bool
     ];
 
     return in_array($code, array_keys($http_codes));
+}
+
+function auth_user(): App\Models\User|false
+{
+    return AuthService::user();
 }
