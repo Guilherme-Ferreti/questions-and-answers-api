@@ -25,13 +25,14 @@ class AuthService
 
         $user->update();
 
+        $expires_at = time() + settings('auth.token_expiry_seconds');
+
         setcookie(
             name: 'refresh_token', 
             value: $user->refresh_token,
+            expires_or_options: $expires_at,
             httponly: true
         );
-
-        $expires_at = time() + 60 * 15;
 
         $auth_token = encrypt(json_encode([
             'user_id' => $user->id,

@@ -62,6 +62,10 @@ function settings(string $keys)
             'max_time' => 60 * 60 * 24 // 24 hours
         ],
 
+        'auth' => [
+            'token_expiry_seconds' => 60 * 15 // 15 minutes
+        ],
+
         'storage' => [
             'local' => [
                 'public_disk_path' => $root . '/public/storage/',
