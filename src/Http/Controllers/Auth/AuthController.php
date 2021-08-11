@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use App\Services\AuthService;
 use App\Validations\LoginValidator;
 use App\Http\Resources\UserResource;
+use App\Http\Controllers\BaseController;
 use App\Validations\Auth\RegisterUserValidator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
