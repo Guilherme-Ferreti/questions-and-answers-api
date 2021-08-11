@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers\Auth;
+namespace App\Http\Controllers\Auth;
 
 use App\Models\Question;
 use App\Http\Controllers\BaseController;
@@ -14,7 +14,9 @@ class QuestionsController extends BaseController
 {
     public function store(Request $request, StoreQuestionsValidator $v)
     {
-        $attributes = $v->validate((array) $request->getParsedBody());
+        $payload = array_merge((array) $request->getParsedBody(), ['user_id' => auth_user()->id]);
+
+        $attributes = $v->validate($payload);
 
         $question = Question::create($attributes);
 
@@ -24,6 +26,10 @@ class QuestionsController extends BaseController
     public function update(Request $request, $id, UpdateQuestionsValidator $v)
     {
         if (! $question = Question::findById($id)) {
+            throw new HttpNotFoundException($request);
+        }
+
+        if (! $this->authorize('update', $question)) {
             throw new HttpNotFoundException($request);
         }
 
