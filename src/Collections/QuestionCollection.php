@@ -29,7 +29,7 @@ class QuestionCollection extends BaseCollection
     {
         $ids = array_map(fn ($question) => $question->user_id, $this->data);
 
-        $users = User::allWhereIdIn($ids);
+        $users = User::allWhereIdIn(array_unique($ids));
 
         foreach ($this->data as $question) {
             $question->user = $users->filter(fn ($user) => $user->id == $question->user_id)->first();
