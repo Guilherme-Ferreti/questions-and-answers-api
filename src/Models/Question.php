@@ -59,8 +59,7 @@ class Question extends BaseModel
             SET 
                 title = :title,
                 body = :body,
-                user_id = :user_id,
-                updated = :updated
+                user_id = :user_id
             WHERE
                 id = :id 
             ', 
@@ -68,7 +67,6 @@ class Question extends BaseModel
                 'title' => $this->title,
                 ':body' => $this->body,  
                 ':user_id' => $this->user_id,  
-                ':updated' => now(),  
                 ':id' => $this->id,  
             ]
         );

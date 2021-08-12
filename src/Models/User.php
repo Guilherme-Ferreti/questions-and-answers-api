@@ -82,8 +82,7 @@ class User extends BaseModel
             SET 
                 username = :username,
                 email = :email,
-                refresh_token = :refresh_token,
-                updated = :updated
+                refresh_token = :refresh_token
             WHERE
                 id = :id
             ', 
@@ -91,7 +90,6 @@ class User extends BaseModel
                 ':username' => $this->username,
                 ':email' => $this->email,
                 ':refresh_token' => $this->refresh_token,
-                ':updated' => now(),
                 ':id' => $this->id,
             ]
         );
