@@ -9,6 +9,8 @@ class UpdateQuestionsValidator extends BaseValidator
         return [
             'title' => 'required|max:255',
             'body' => 'required|max:65000',
+            'topics' => 'required|array|min:1|max:3|array_values_unique',
+            'topics.*' => 'numeric|exists:topics,id',
         ];
     }
 }

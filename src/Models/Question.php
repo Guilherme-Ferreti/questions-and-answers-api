@@ -27,7 +27,12 @@ class Question extends BaseModel
     {
         $question = new Question($attributes);
 
+        db()->beginTransaction();
+
         $question->save();
+        $question->syncTopics();
+
+        db()->commit();
 
         return $question->refresh();
     }
@@ -108,5 +113,20 @@ class Question extends BaseModel
         ');
 
         return new TopicCollection(array_map(fn ($row) => new Topic($row), $results));
+    }
+
+    public function syncTopics(): bool
+    {
+        db()->query('DELETE FROM topic_question WHERE question_id = :id', [':id' => $this->id]);
+
+        $query = 'INSERT INTO topic_question (question_id, topic_id) VALUES ';
+
+        foreach ($this->topics as $topic) {
+            $query .= "({$this->id},$topic),";
+        }
+
+        $query = rtrim($query, ',');
+
+        return db()->query($query);
     }
 }

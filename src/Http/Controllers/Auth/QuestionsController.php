@@ -20,6 +20,8 @@ class QuestionsController extends BaseController
 
         $question = Question::create($attributes);
 
+        $question->load('topics');
+
         return $this->json(QuestionResource::toArray($question), 201);
     }
 
