@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth;
 use App\Http\Controllers\{
     QuestionsController,
+    QuestionAnswersController,
 };
 use App\Http\Middlewares\{
     AuthMiddleware, 
@@ -13,6 +14,10 @@ $app->group('/api', function ($route) {
     $route->group('/questions', function ($route) {
         $route->get('[/]', [QuestionsController::class, 'index']);
         $route->get('/{id}', [QuestionsController::class, 'show']);
+
+        $route->group('/{id}/answers', function ($route) {
+            $route->get('[/]', [QuestionAnswersController::class, 'index']);
+        });
     });
 
     $route->group('/auth', function ($route) {
@@ -25,6 +30,10 @@ $app->group('/api', function ($route) {
                 $route->post('[/]', [Auth\QuestionsController::class, 'store']);
                 $route->put('/{id}', [Auth\QuestionsController::class, 'update']);
                 $route->delete('/{id}', [Auth\QuestionsController::class, 'destroy']);
+
+                $route->group('/{id}/answers', function ($route) {
+                    $route->post('[/]', [Auth\QuestionAnswersController::class, 'store']);
+                });
             });
         })->add(new AuthMiddleware());
     });

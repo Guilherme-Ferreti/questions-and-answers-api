@@ -14,4 +14,13 @@ abstract class BaseCollection extends AbstractCollection
         
         return $this;
     }
+
+    public function toArray(): array
+    {
+        foreach ($this->data as $model) {
+            $array[] = $model->toArray();
+        }
+
+        return $array;
+    }
 }

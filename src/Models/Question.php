@@ -79,7 +79,9 @@ class Question extends BaseModel
 
     public function refresh(): self
     {
-        return $this->findById($this->id);
+        $question = $this->findById($this->id);
+
+        return $this->setAttributes($question->toArray());
     }
 
     public function loadUser(): self
@@ -126,5 +128,12 @@ class Question extends BaseModel
         $query = rtrim($query, ',');
 
         return db()->query($query);
+    }
+
+    public function loadAnswers(): self
+    {
+        $this->attributes['answers'] = Answer::allWhereQuestionId($this->id);
+
+        return $this;
     }
 }
